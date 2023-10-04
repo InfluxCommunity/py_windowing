@@ -18,6 +18,10 @@ class TestNextWindow(unittest.TestCase):
         self.assertEqual(start, datetime(2023, 10, 3, 12, 20))
         self.assertEqual(stop, datetime(2023, 10, 3, 12, 30))
 
+        start, stop = get_next_window(70, IntervalType.MINUTES, now)
+        self.assertEqual(start, datetime(2023, 10, 3, 13, 0))
+        self.assertEqual(stop, datetime(2023, 10, 3, 14, 10))   
+
     def test_get_next_window_hours(self):
         now = datetime(2023, 10, 3, 12, 15)
 
@@ -41,6 +45,10 @@ class TestNextWindow(unittest.TestCase):
         start, stop = get_next_window(7, IntervalType.DAYS, now)
         self.assertEqual(start, datetime(2023, 10, 4, 0, 0))
         self.assertEqual(stop, datetime(2023, 10, 11, 0, 0))
+
+    def test_bad_intervals(self):
+        self.assertRaises(ValueError, get_current_window, -1, IntervalType.HOURS)
+        self.assertRaises(TypeError, get_current_window, 0.0, IntervalType.HOURS)
 
     def test_get_next_window_cross_days(self):
         now = datetime(2023, 10, 3, 23, 59)

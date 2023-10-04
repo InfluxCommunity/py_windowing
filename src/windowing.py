@@ -8,6 +8,14 @@ class IntervalType(Enum):
     SECONDS = "seconds"
 
 def get_next_window(interval_count, interval_type, now=None):
+        # Check if interval_count is an integer
+    if not isinstance(interval_count, int):
+        raise TypeError("interval_count must be an integer")
+
+    # Check if interval_count is greater than zero
+    if interval_count <= 0:
+        raise ValueError("interval_count must be greater than zero")
+    
     if interval_type == IntervalType.MINUTES:
         t =  _get_next_start_minutes(interval_count, now)
         return (t, t + timedelta(minutes=interval_count))
@@ -19,16 +27,24 @@ def get_next_window(interval_count, interval_type, now=None):
         return (t, t + timedelta(days=interval_count))
     
 def get_current_window(interval_count, interval_type, now=None):
+        # Check if interval_count is an integer
+    if not isinstance(interval_count, int):
+        raise TypeError("interval_count must be an integer")
+
+    # Check if interval_count is greater than zero
+    if interval_count <= 0:
+        raise ValueError("interval_count must be greater than zero")
+    
     if now == None:
         now = datetime.now()
 
     if interval_type == IntervalType.MINUTES:
-        start = now.replace(second=0, microsecond=0)
+            start = now.replace(minute=now.minute, second=0, microsecond=0)
 
-        hours = interval_count // 60
-        stop_time = now + timedelta(hours = hours, minutes=interval_count)
-        stop = stop_time.replace(second=0, microsecond=0)
-        return (start, stop)
+            hours = interval_count // 60
+            stop_time = start + timedelta(hours = hours, minutes=interval_count)
+            stop = stop_time.replace(second=0, microsecond=0)
+            return (start, stop)
     
     if interval_type == IntervalType.HOURS:
         start = now.replace(hour=now.hour, minute=0, second=0, microsecond=0)

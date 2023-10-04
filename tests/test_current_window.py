@@ -24,6 +24,10 @@ class TestCurrentWindow(unittest.TestCase):
         self.assertEqual(start, datetime(2023, 10, 3, 23, 0, 0))
         self.assertEqual(stop, datetime(2023, 10, 4, 2, 0, 0))
 
+    def test_bad_intervals(self):
+        self.assertRaises(ValueError, get_current_window, -1, IntervalType.HOURS)
+        self.assertRaises(TypeError, get_current_window, 0.0, IntervalType.HOURS)
+
 if __name__ == '__main__':
     unittest.main()
 
