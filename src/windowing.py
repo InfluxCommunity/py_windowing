@@ -27,11 +27,9 @@ def get_next_window(interval_count, interval_type, now=None):
         return (t, t + timedelta(days=interval_count))
     
 def get_current_window(interval_count, interval_type, now=None):
-        # Check if interval_count is an integer
     if not isinstance(interval_count, int):
         raise TypeError("interval_count must be an integer")
 
-    # Check if interval_count is greater than zero
     if interval_count <= 0:
         raise ValueError("interval_count must be greater than zero")
     
@@ -55,7 +53,12 @@ def get_current_window(interval_count, interval_type, now=None):
         stop = stop_time.replace(minute=0, second=0, microsecond=0)
         return (start, stop)
         
-
+    if interval_type == IntervalType.DAYS:
+        start = now.replace(day=now.day, hour=0, minute=0, second=0, microsecond=0)
+        
+        stop_time = now + timedelta(days = interval_count)
+        stop = stop_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        return (start, stop)
 
 def _get_next_start_minutes(minutes, now=None):
     if now == None:
