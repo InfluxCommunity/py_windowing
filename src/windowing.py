@@ -9,6 +9,8 @@ class IntervalType(Enum):
 
 class Window():
     def __init__(self, interval_length=1, interval_type=None,now=None):
+        if now is None:
+            now = datetime.now()
         self.interval_length = interval_length
         self.interval_type = interval_type
         self.start, self.stop = get_current_window(interval_length, interval_type, now)
