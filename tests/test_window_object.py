@@ -39,7 +39,16 @@ class TestWindowObject(unittest.TestCase):
 
         w = w.next_window
         self.assertEqual(w.start, datetime(2023, 10, 3, 12, 59))
-        self.assertEqual(w.stop, datetime(2023, 10, 3, 13, 0))   
+        self.assertEqual(w.stop, datetime(2023, 10, 3, 13, 0)) 
+
+    def test_bad_arguments(self):
+        with self.assertRaises(ValueError):
+            Window(interval_length=-1, interval_type=IntervalType.HOURS)
+        with self.assertRaises(ValueError):
+            Window(interval_length=1, interval_type=None)
+        with self.assertRaises(TypeError):
+            Window(interval_length=0.0, interval_type=IntervalType.HOURS) 
+
 
 if __name__ == '__main__':
     unittest.main()

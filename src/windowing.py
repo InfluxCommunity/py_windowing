@@ -8,9 +8,13 @@ class IntervalType(Enum):
     SECONDS = "seconds"
 
 class Window():
-    def __init__(self, interval_length=1, interval_type=None,now=None):
+    def __init__(self, interval_length=1, interval_type=None, now=None):
+        _check_interval_length(interval_length)
+        if interval_type is None:
+            raise ValueError("interval_type must not be None")
         if now is None:
             now = datetime.now()
+
         self.interval_length = interval_length
         self.interval_type = interval_type
         self.start, self.stop = get_current_window(interval_length, interval_type, now)
@@ -25,7 +29,7 @@ class Window():
         return Window(self.interval_length, self.interval_type, start)
 
 def get_next_window(interval_length, interval_type, now=None):
-    _check_input(interval_length)
+    _check_interval_length(interval_length)
     current_window = get_current_window(interval_length, interval_type, now)
     days, hours, minutes = 0, 0, 0
 
@@ -39,7 +43,7 @@ def get_next_window(interval_length, interval_type, now=None):
     return(current_window[0] + td, current_window[1] + td)
     
 def get_current_window(interval_length, interval_type, now=None):
-    _check_input(interval_length)
+    _check_interval_length(interval_length)
     
     if now == None:
         now = datetime.now()
@@ -76,7 +80,7 @@ def get_current_window(interval_length, interval_type, now=None):
         return (start, stop)
 
 def get_previous_window(interval_length, interval_type, now=None):
-    _check_input(interval_length)
+    _check_interval_length(interval_length)
     current_window = get_current_window(interval_length, interval_type, now)
     days, hours, minutes = 0, 0, 0
 
@@ -89,9 +93,9 @@ def get_previous_window(interval_length, interval_type, now=None):
     td = timedelta(days=days, hours=hours, minutes=minutes)
     return(current_window[0] - td, current_window[1] - td)
 
-def _check_input(interval_count):
-    if not isinstance(interval_count, int):
+def _check_interval_length(interval_length):
+    if not isinstance(interval_length, int):
         raise TypeError("interval_count must be an integer")
 
-    if interval_count <= 0:
+    if interval_length <= 0:
         raise ValueError("interval_count must be greater than zero")
