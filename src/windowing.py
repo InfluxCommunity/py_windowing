@@ -8,13 +8,7 @@ class IntervalType(Enum):
     SECONDS = "seconds"
 
 def get_next_window(interval_count, interval_type, now=None):
-        # Check if interval_count is an integer
-    if not isinstance(interval_count, int):
-        raise TypeError("interval_count must be an integer")
-
-    # Check if interval_count is greater than zero
-    if interval_count <= 0:
-        raise ValueError("interval_count must be greater than zero")
+    _check_input(interval_count)
     
     if interval_type == IntervalType.MINUTES:
         t =  _get_next_start_minutes(interval_count, now)
@@ -27,11 +21,7 @@ def get_next_window(interval_count, interval_type, now=None):
         return (t, t + timedelta(days=interval_count))
     
 def get_current_window(interval_count, interval_type, now=None):
-    if not isinstance(interval_count, int):
-        raise TypeError("interval_count must be an integer")
-
-    if interval_count <= 0:
-        raise ValueError("interval_count must be greater than zero")
+    _check_input(interval_count)
     
     if now == None:
         now = datetime.now()
@@ -60,6 +50,29 @@ def get_current_window(interval_count, interval_type, now=None):
         stop = stop_time.replace(hour=0, minute=0, second=0, microsecond=0)
         return (start, stop)
 
+
+
+def get_previous_window(interval_count, interval_type, now=None):
+    _check_input(interval_count)
+    current_window = get_current_window(interval_count, interval_type, now)
+    days, hours, minutes = 0, 0, 0
+
+    if interval_type == IntervalType.DAYS:
+        days = interval_count
+    elif interval_type == IntervalType.HOURS:
+        hours = interval_count
+    if interval_type == IntervalType.MINUTES:
+        minutes = interval_count
+    td = timedelta(days=days, hours=hours, minutes=minutes)
+    return(current_window[0] - td, current_window[1] - td)
+
+def _check_input(interval_count):
+    if not isinstance(interval_count, int):
+        raise TypeError("interval_count must be an integer")
+
+    if interval_count <= 0:
+        raise ValueError("interval_count must be greater than zero")
+    
 def _get_next_start_minutes(minutes, now=None):
     if now == None:
         now = datetime.now()
