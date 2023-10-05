@@ -4,7 +4,7 @@ import sys
 sys.path.append('../src/')
 from src.windowing import get_next_window, get_current_window, get_previous_window, IntervalType
 
-class TestNextWindow(unittest.TestCase):
+class TestPreviousWindow(unittest.TestCase):
 
     def test_get_previous_window_minutes(self):
         now = datetime(2023, 10, 3, 12, 15)
