@@ -12,6 +12,18 @@ class TestCurrentWindow(unittest.TestCase):
         self.assertEqual(start, datetime(2023, 10, 3, 12, 15, 0))
         self.assertEqual(stop, datetime(2023, 10, 3, 12, 16, 0))
 
+        now = datetime(2023, 10, 3, 0, 1)
+
+  
+        start, stop = get_current_window(10, IntervalType.MINUTES, now)
+        self.assertEqual(start, datetime(2023, 10, 3, 0, 0))
+        self.assertEqual(stop, datetime(2023, 10, 3, 0, 10))
+
+        now = datetime(2023, 10, 3, 12, 15)
+        start, stop = get_current_window(70, IntervalType.MINUTES, now)
+        self.assertEqual(start, datetime(2023, 10, 3, 12, 0))
+        self.assertEqual(stop, datetime(2023, 10, 3, 13, 10)) 
+
     def test_get_current_window_hours(self):
         now = datetime(2023, 10, 3, 12, 15, 15)
         start, stop = get_current_window(1, IntervalType.HOURS, now)

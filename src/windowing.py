@@ -9,16 +9,17 @@ class IntervalType(Enum):
 
 def get_next_window(interval_count, interval_type, now=None):
     _check_input(interval_count)
-    
-    if interval_type == IntervalType.MINUTES:
-        t =  _get_next_start_minutes(interval_count, now)
-        return (t, t + timedelta(minutes=interval_count))
+    current_window = get_current_window(interval_count, interval_type, now)
+    days, hours, minutes = 0, 0, 0
+
+    if interval_type == IntervalType.DAYS:
+        days = interval_count
     elif interval_type == IntervalType.HOURS:
-        t = _get_next_start_hours(interval_count, now)
-        return (t, t + timedelta(hours=interval_count))
-    elif interval_type == IntervalType.DAYS:
-        t = _get_next_start_days(interval_count, now)
-        return (t, t + timedelta(days=interval_count))
+        hours = interval_count
+    if interval_type == IntervalType.MINUTES:
+        minutes = interval_count
+    td = timedelta(days=days, hours=hours, minutes=minutes)
+    return(current_window[0] + td, current_window[1] + td)
     
 def get_current_window(interval_count, interval_type, now=None):
     _check_input(interval_count)
@@ -27,10 +28,17 @@ def get_current_window(interval_count, interval_type, now=None):
         now = datetime.now()
 
     if interval_type == IntervalType.MINUTES:
-            start = now.replace(minute=now.minute, second=0, microsecond=0)
-
             hours = interval_count // 60
-            stop_time = start + timedelta(hours = hours, minutes=interval_count)
+            start = now
+            if interval_count < 60:
+                minute = (now.minute // interval_count) * interval_count
+                if minute >= 60:
+                    start = now.replace(minute=0, second=0, microsecond=0)
+                else:
+                    start = now.replace(minute=minute, second=0, microsecond=0)
+            else:
+                start = now.replace(minute=0, second=0, microsecond=0)
+            stop_time = start + timedelta(minutes=interval_count)
             stop = stop_time.replace(second=0, microsecond=0)
             return (start, stop)
     
@@ -49,8 +57,6 @@ def get_current_window(interval_count, interval_type, now=None):
         stop_time = now + timedelta(days = interval_count)
         stop = stop_time.replace(hour=0, minute=0, second=0, microsecond=0)
         return (start, stop)
-
-
 
 def get_previous_window(interval_count, interval_type, now=None):
     _check_input(interval_count)
@@ -72,35 +78,3 @@ def _check_input(interval_count):
 
     if interval_count <= 0:
         raise ValueError("interval_count must be greater than zero")
-    
-def _get_next_start_minutes(minutes, now=None):
-    if now == None:
-        now = datetime.now()
-
-    if minutes < 60:
-        next_minute = ((now.minute // minutes) + 1) * minutes
-        if next_minute >= 60:
-            return now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
-        else:
-            return now.replace(minute=next_minute, second=0, microsecond=0)
-    else:
-        return now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
-
-def _get_next_start_hours(hours, now=None):
-    if now == None:
-        now = datetime.now()
-    return now.replace(hour=now.hour + 1, minute=0, second=0, microsecond=0)
-
-def _get_next_start_days(days, now=None):
-    if now == None:
-        now = datetime.now()
-    return now.replace(day = now.day + 1, hour=0, minute=0, second=0, microsecond=0)
-   
-
-def get_then(interval_val, interval_type, now):
-    if interval_type == "m":
-        return now - timedelta(minutes=interval_val)
-    elif interval_type == "h":
-        return now - timedelta(hours=interval_val)
-    elif interval_type == "d":
-        return now - timedelta(days=interval_val)
