@@ -5,7 +5,6 @@ class TimeUnit(Enum):
     MINUTES = "minutes"
     HOURS = "hours"
     DAYS = "days"
-    SECONDS = "seconds"
 
 class Window():
     def __init__(self, unit_count=1, time_unit=None, now=None):
