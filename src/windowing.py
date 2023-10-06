@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from enum import Enum
+from dateutil.relativedelta import relativedelta
 
 class TimeUnit(Enum):
     MINUTES = "minutes"
     HOURS = "hours"
     DAYS = "days"
+    MONTHS = "months"
 
 class Window():
     def __init__(self, unit_count=1, time_unit=None, now=None):
@@ -77,6 +79,11 @@ def get_current_window(unit_count, unit_type, now=None):
         stop_time = now + timedelta(days = unit_count)
         stop = stop_time.replace(hour=0, minute=0, second=0, microsecond=0)
         return (start, stop)
+    
+    if unit_type == TimeUnit.MONTHS:
+        start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        stop = start + relativedelta(months=unit_count)
+        return start, stop
 
 def get_previous_window(unit_count, unit_type, now=None):
     _check_unit_count(unit_count)
