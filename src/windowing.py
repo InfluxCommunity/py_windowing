@@ -1,101 +1,101 @@
 from datetime import datetime, timedelta
 from enum import Enum
 
-class IntervalType(Enum):
+class TimeUnit(Enum):
     MINUTES = "minutes"
     HOURS = "hours"
     DAYS = "days"
     SECONDS = "seconds"
 
 class Window():
-    def __init__(self, interval_length=1, interval_type=None, now=None):
-        _check_interval_length(interval_length)
-        if interval_type is None:
-            raise ValueError("interval_type must not be None")
+    def __init__(self, unit_count=1, time_unit=None, now=None):
+        _check_unit_count(unit_count)
+        if time_unit is None:
+            raise ValueError("unit_type must not be None")
         if now is None:
             now = datetime.now()
 
-        self.interval_length = interval_length
-        self.interval_type = interval_type
-        self.start, self.stop = get_current_window(interval_length, interval_type, now)
+        self.unit_count = unit_count
+        self.time_unit = time_unit
+        self.start, self.stop = get_current_window(unit_count, time_unit, now)
     
     @property
     def next_window(self):
-        return Window(self.interval_length, self.interval_type, self.stop)
+        return Window(self.unit_count, self.time_unit, self.stop)
     
     @property
     def previous_window(self):
-        start, stop = get_previous_window(self.interval_length, self.interval_type, self.start)
-        return Window(self.interval_length, self.interval_type, start)
+        start, stop = get_previous_window(self.unit_count, self.time_unit, self.start)
+        return Window(self.unit_count, self.time_unit, start)
 
-def get_next_window(interval_length, interval_type, now=None):
-    _check_interval_length(interval_length)
-    current_window = get_current_window(interval_length, interval_type, now)
+def get_next_window(unit_count, unit_type, now=None):
+    _check_unit_count(unit_count)
+    current_window = get_current_window(unit_count, unit_type, now)
     days, hours, minutes = 0, 0, 0
 
-    if interval_type == IntervalType.DAYS:
-        days = interval_length
-    elif interval_type == IntervalType.HOURS:
-        hours = interval_length
-    if interval_type == IntervalType.MINUTES:
-        minutes = interval_length
+    if unit_type == TimeUnit.DAYS:
+        days = unit_count
+    elif unit_type == TimeUnit.HOURS:
+        hours = unit_count
+    if unit_type == TimeUnit.MINUTES:
+        minutes = unit_count
     td = timedelta(days=days, hours=hours, minutes=minutes)
     return(current_window[0] + td, current_window[1] + td)
     
-def get_current_window(interval_length, interval_type, now=None):
-    _check_interval_length(interval_length)
+def get_current_window(unit_count, unit_type, now=None):
+    _check_unit_count(unit_count)
     
     if now == None:
         now = datetime.now()
 
-    if interval_type == IntervalType.MINUTES:
-            hours = interval_length // 60
+    if unit_type == TimeUnit.MINUTES:
+            hours = unit_count // 60
             start = now
-            if interval_length < 60:
-                minute = (now.minute // interval_length) * interval_length
+            if unit_count < 60:
+                minute = (now.minute // unit_count) * unit_count
                 if minute >= 60:
                     start = now.replace(minute=0, second=0, microsecond=0)
                 else:
                     start = now.replace(minute=minute, second=0, microsecond=0)
             else:
                 start = now.replace(minute=0, second=0, microsecond=0)
-            stop_time = start + timedelta(minutes=interval_length)
+            stop_time = start + timedelta(minutes=unit_count)
             stop = stop_time.replace(second=0, microsecond=0)
             return (start, stop)
     
-    if interval_type == IntervalType.HOURS:
+    if unit_type == TimeUnit.HOURS:
         start = now.replace(hour=now.hour, minute=0, second=0, microsecond=0)
 
-        days = interval_length // 24
+        days = unit_count // 24
         
-        stop_time = now + timedelta(days = days, hours=interval_length)
+        stop_time = now + timedelta(days = days, hours=unit_count)
         stop = stop_time.replace(minute=0, second=0, microsecond=0)
         return (start, stop)
         
-    if interval_type == IntervalType.DAYS:
+    if unit_type == TimeUnit.DAYS:
         start = now.replace(day=now.day, hour=0, minute=0, second=0, microsecond=0)
         
-        stop_time = now + timedelta(days = interval_length)
+        stop_time = now + timedelta(days = unit_count)
         stop = stop_time.replace(hour=0, minute=0, second=0, microsecond=0)
         return (start, stop)
 
-def get_previous_window(interval_length, interval_type, now=None):
-    _check_interval_length(interval_length)
-    current_window = get_current_window(interval_length, interval_type, now)
+def get_previous_window(unit_count, unit_type, now=None):
+    _check_unit_count(unit_count)
+    current_window = get_current_window(unit_count, unit_type, now)
     days, hours, minutes = 0, 0, 0
 
-    if interval_type == IntervalType.DAYS:
-        days = interval_length
-    elif interval_type == IntervalType.HOURS:
-        hours = interval_length
-    if interval_type == IntervalType.MINUTES:
-        minutes = interval_length
+    if unit_type == TimeUnit.DAYS:
+        days = unit_count
+    elif unit_type == TimeUnit.HOURS:
+        hours = unit_count
+    if unit_type == TimeUnit.MINUTES:
+        minutes = unit_count
     td = timedelta(days=days, hours=hours, minutes=minutes)
     return(current_window[0] - td, current_window[1] - td)
 
-def _check_interval_length(interval_length):
-    if not isinstance(interval_length, int):
+def _check_unit_count(unit_count):
+    if not isinstance(unit_count, int):
         raise TypeError("interval_count must be an integer")
 
-    if interval_length <= 0:
+    if unit_count <= 0:
         raise ValueError("interval_count must be greater than zero")
