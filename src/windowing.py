@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from enum import Enum
+from dateutil.relativedelta import relativedelta
 
 class TimeUnit(Enum):
     MINUTES = "minutes"
     HOURS = "hours"
     DAYS = "days"
+    MONTHS = "months"
 
 class Window():
     def __init__(self, unit_count=1, time_unit=None, now=None):
@@ -30,7 +32,7 @@ class Window():
 def get_next_window(unit_count, unit_type, now=None):
     _check_unit_count(unit_count)
     current_window = get_current_window(unit_count, unit_type, now)
-    days, hours, minutes = 0, 0, 0
+    days, hours, minutes, months = 0, 0, 0, 0
 
     if unit_type == TimeUnit.DAYS:
         days = unit_count
@@ -38,7 +40,10 @@ def get_next_window(unit_count, unit_type, now=None):
         hours = unit_count
     if unit_type == TimeUnit.MINUTES:
         minutes = unit_count
-    td = timedelta(days=days, hours=hours, minutes=minutes)
+    if unit_type == TimeUnit.MONTHS:
+        months = unit_count
+    # td = timedelta(months=months, days=days, hours=hours, minutes=minutes)
+    td = relativedelta(months=months, days=days,hours=hours,minutes=minutes)
     return(current_window[0] + td, current_window[1] + td)
     
 def get_current_window(unit_count, unit_type, now=None):
@@ -77,11 +82,22 @@ def get_current_window(unit_count, unit_type, now=None):
         stop_time = now + timedelta(days = unit_count)
         stop = stop_time.replace(hour=0, minute=0, second=0, microsecond=0)
         return (start, stop)
+    
+    if unit_type == TimeUnit.MONTHS:
+        
+        start_month = ((now.month - 1) // unit_count) * unit_count + 1
+        start = now.replace(month=start_month, day=1, hour=0, minute=0, second=0,microsecond=0)
+        stop = start  + relativedelta(months=unit_count)
+
+        return start, stop
 
 def get_previous_window(unit_count, unit_type, now=None):
     _check_unit_count(unit_count)
     current_window = get_current_window(unit_count, unit_type, now)
     days, hours, minutes = 0, 0, 0
+
+    if unit_type == TimeUnit.MONTHS:
+        return(current_window[0] - relativedelta(months=unit_count), current_window[0])
 
     if unit_type == TimeUnit.DAYS:
         days = unit_count

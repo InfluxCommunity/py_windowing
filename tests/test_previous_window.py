@@ -21,6 +21,18 @@ class TestPreviousWindow(unittest.TestCase):
         start, stop = get_previous_window(10, TimeUnit.MINUTES, now)
         self.assertEqual(start, datetime(2023, 10, 2, 23, 50))
         self.assertEqual(stop, datetime(2023, 10, 3, 0, 0))
+    
+    def test_get_previous_months(self):
+        now = datetime(2023, 10, 3, 0, 1)
+        start, stop = get_previous_window(1, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 9, 1, 0, 0))
+        self.assertEqual(stop, datetime(2023, 10, 1, 0, 0))
+        
+        # cross a year
+        now = datetime(2023, 1, 3, 0, 1)
+        start, stop = get_previous_window(1, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2022, 12, 1, 0, 0))
+        self.assertEqual(stop, datetime(2023, 1, 1, 0, 0))
 
 if __name__ == '__main__':
     unittest.main()

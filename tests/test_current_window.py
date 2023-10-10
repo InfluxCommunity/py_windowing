@@ -13,7 +13,6 @@ class TestCurrentWindow(unittest.TestCase):
         self.assertEqual(stop, datetime(2023, 10, 3, 12, 16, 0))
 
         now = datetime(2023, 10, 3, 0, 1)
-
   
         start, stop = get_current_window(10, TimeUnit.MINUTES, now)
         self.assertEqual(start, datetime(2023, 10, 3, 0, 0))
@@ -35,6 +34,34 @@ class TestCurrentWindow(unittest.TestCase):
         start, stop = get_current_window(1, TimeUnit.DAYS, now)
         self.assertEqual(start, datetime(2023, 10, 3, 0, 0, 0))
         self.assertEqual(stop, datetime(2023, 10, 4, 0, 0, 0)) 
+
+    def test_current_window_months(self):
+        now = datetime(2023, 10, 1, 12, 15, 15)
+        start, stop = get_current_window(1, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 10, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2023, 11, 1, 0, 0, 0))
+
+    def test_month_alignment(self):
+        now = datetime(2023, 2, 5, 12, 15, 15)
+        start, stop = get_current_window(3, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 1, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2023, 4, 1, 0, 0, 0))
+
+    def test_deal_with_february(self):
+        now = datetime(2023, 1, 15, 12, 15, 15)
+        start, stop = get_current_window(1, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 1, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2023, 2, 1, 0, 0, 0))        
+
+        start, stop = get_current_window(2, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 1, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2023, 3, 1, 0, 0, 0)) 
+
+    def test_months_over_year_boundary(self):
+        now = datetime(2023, 12, 15, 12, 15, 15)
+        start, stop = get_current_window(1, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 12, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2024, 1, 1, 0, 0, 0))    
 
     def test_get_current_window_days_cross_year(self):
         now = datetime(2023, 12, 31, 12, 15, 15)

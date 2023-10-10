@@ -15,7 +15,7 @@ class TestWindowObject(unittest.TestCase):
         self.assertEqual(w.start, datetime(2023, 10, 3, 12, 10))
         self.assertEqual(w.stop, datetime(2023, 10, 3, 12, 20))
 
-    def test_works_with_current_time(self):
+    def test_no_crash_with_current_time(self):
         try:
             Window(unit_count=10,time_unit=TimeUnit.MINUTES)
         except Exception as e:
