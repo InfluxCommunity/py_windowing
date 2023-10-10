@@ -21,7 +21,7 @@ It's easy enough to set the time windows that you want when you are writing the 
 The Windowing module simplifies the generation of time windows.
 
 # Usage
-Currently the Windowing module supports seconds, hours, and minute time units, and works by defining the number of time units desired, and aligning the time window as described below. By defult, Windowing will use datetime.now() to calculate the current window, but users can provide their own "now" as well.
+Currently the Windowing module supports months, days, hours, and minute time units, and works by defining the number of time units desired, and aligning the time window as described below. By defult, Windowing will use datetime.now() to calculate the current window, but users can provide their own "now" as well.
 
 The following example creates 10 minute intervals, and demonstrates retrieving the previous window, as well as getting the next 2 windows.
 
@@ -84,24 +84,10 @@ AND
 ```
 
 ## Alignment
-Currently, the module supports minutes, hours, and days and time units. 
+Windows will be aligned to the next larger supported unit. Specifically:
+ * windows in minutes will be aligned to the 0th minute of the current hour
+ * windows in hours will be aligned to the 0th hour of the current day
+ * windows in days will be aligned to the 1st day of the current month
+ * windows in months will be aligned to January 1 of the current year
 
-### Minute Alignment
-If you specific minutes as the time unit, the windows will align to the minute boundaries, starting at the bottom of the hour. Examples:
- * If your start time is 12:10, and you ask for 7 minute windows, the current window will be 12:07 to 12:14. The previous window will be 12:00 to 12:07, and the next window will be 12:21. 
- * If your start time is 12:10:30 (12:10 and 15 seconds), and you ask for 1 minute intervals, the seconds will be ignored, and your current window will be 12:10:00 to 12:11:00.
-
-Note that the windows are not coerced to realign at the next hour if the length of the window is not a divsior of 60. So, in the above example with 7 minute windows, the window after 12:49 to 12:56 will be 13:03.
-
-### Hour Alignment
-Similar to minutes, if the chose time unit is in hours, the hours will align to 00:00 of the current day.
-
-### Day Alignment
-Day-based windows do not align to weeks or months, they simply start at the current day.
-
-For example, if your start time is 2023-10-06 at 12:10, and you ask for 1 day windows, the current window will be 2023-10-06 00:00 to 2023-10-07 00:00.
-
-# Why Not RRULE?
-You may be familiar with the execllent [rrule library](https://dateutil.readthedocs.io/en/stable/rrule.html) and wonder why a windowing library was needed. 
-
-Rrule is great for generating scheduled times off into the future, and if that is your need, you should definately consider it. However, rrule is more difficult to use if you want to calculate times in the past. Additionally, rrule requires a lot of manual code to align windows. Currently this module is not based on rrule, but it may be changed internally to use rrule under the hood in the future.
+For example, if you ask for a 1 minute window and the time is 12:15:15, the start of the window will be 12:15:00 of the current date, and the stop of the window will be 12:16:00 of the current date. This allows you to write queries for the window such as: ```WHEN time >= {start} and time < {stop} ```
