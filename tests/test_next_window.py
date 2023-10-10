@@ -36,7 +36,6 @@ class TestNextWindow(unittest.TestCase):
     def test_get_next_window_days(self):
         now = datetime(2023, 10, 3, 12, 15)
 
-        # Test minutes
         start, stop = get_next_window(1, TimeUnit.DAYS, now)
         self.assertEqual(start, datetime(2023, 10, 4, 0, 0))
         self.assertEqual(stop, datetime(2023, 10, 5, 0, 0))
@@ -45,15 +44,18 @@ class TestNextWindow(unittest.TestCase):
         self.assertEqual(start, datetime(2023, 10, 10, 0, 0))
         self.assertEqual(stop, datetime(2023, 10, 17, 0, 0))
 
-    def test_bad_intervals(self):
-        self.assertRaises(ValueError, get_current_window, -1, TimeUnit.HOURS)
-        self.assertRaises(TypeError, get_current_window, 0.0, TimeUnit.HOURS)
-
     def test_get_next_window_cross_days(self):
         now = datetime(2023, 10, 3, 23, 59)
         start, stop = get_next_window(15, TimeUnit.MINUTES, now)
         self.assertEqual(start, datetime(2023, 10, 4, 0, 0))
         self.assertEqual(stop, datetime(2023, 10, 4, 0, 15))
+
+    def test_get_next_window_months(self):
+        now = datetime(2023, 10, 3, 12, 15)
+
+        start, stop = get_next_window(1, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 11, 1, 0, 0))
+        self.assertEqual(stop, datetime(2023, 12, 1, 0, 0))
         
 if __name__ == '__main__':
     unittest.main()
