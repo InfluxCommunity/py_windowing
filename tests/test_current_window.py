@@ -12,11 +12,10 @@ class TestCurrentWindow(unittest.TestCase):
         self.assertEqual(start, datetime(2023, 10, 3, 12, 15, 0))
         self.assertEqual(stop, datetime(2023, 10, 3, 12, 16, 0))
 
-        now = datetime(2023, 10, 3, 0, 1)
-  
+        now = datetime(2023, 10, 3, 12, 2, 2)
         start, stop = get_current_window(10, TimeUnit.MINUTES, now)
-        self.assertEqual(start, datetime(2023, 10, 3, 0, 0))
-        self.assertEqual(stop, datetime(2023, 10, 3, 0, 10))
+        self.assertEqual(start, datetime(2023, 10, 3, 12 , 0))
+        self.assertEqual(stop, datetime(2023, 10, 3, 12, 10))
 
         now = datetime(2023, 10, 3, 12, 15)
         start, stop = get_current_window(70, TimeUnit.MINUTES, now)
@@ -47,6 +46,21 @@ class TestCurrentWindow(unittest.TestCase):
         self.assertEqual(start, datetime(2023, 1, 1, 0, 0, 0))
         self.assertEqual(stop, datetime(2023, 4, 1, 0, 0, 0))
 
+        now = datetime(2023, 5, 5, 12, 15, 15)
+        start, stop = get_current_window(3, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 4, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2023, 7, 1, 0, 0, 0))
+
+        now = datetime(2023, 9, 5, 12, 15, 15)
+        start, stop = get_current_window(3, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 7, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2023, 10, 1, 0, 0, 0))
+
+        now = datetime(2023, 10, 5, 12, 15, 15)
+        start, stop = get_current_window(3, TimeUnit.MONTHS, now)
+        self.assertEqual(start, datetime(2023, 10, 1, 0, 0, 0))
+        self.assertEqual(stop, datetime(2024, 1, 1, 0, 0, 0))
+
     def test_deal_with_february(self):
         now = datetime(2023, 1, 15, 12, 15, 15)
         start, stop = get_current_window(1, TimeUnit.MONTHS, now)
@@ -72,8 +86,8 @@ class TestCurrentWindow(unittest.TestCase):
     def test_get_current_window_hours_cross_day(self):
         now = datetime(2023, 10, 3, 23, 15, 15)
         start, stop = get_current_window(3, TimeUnit.HOURS, now)
-        self.assertEqual(start, datetime(2023, 10, 3, 23, 0, 0))
-        self.assertEqual(stop, datetime(2023, 10, 4, 2, 0, 0))
+        self.assertEqual(start, datetime(2023, 10, 3, 20, 0, 0))
+        self.assertEqual(stop, datetime(2023, 10, 3, 23, 0, 0))
 
     def test_bad_intervals(self):
         self.assertRaises(ValueError, get_current_window, -1, TimeUnit.HOURS)

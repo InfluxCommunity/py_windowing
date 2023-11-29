@@ -42,7 +42,6 @@ def get_next_window(unit_count, unit_type, now=None):
         minutes = unit_count
     if unit_type == TimeUnit.MONTHS:
         months = unit_count
-    # td = timedelta(months=months, days=days, hours=hours, minutes=minutes)
     td = relativedelta(months=months, days=days,hours=hours,minutes=minutes)
     return(current_window[0] + td, current_window[1] + td)
     
@@ -53,14 +52,14 @@ def get_current_window(unit_count, unit_type, now=None):
         now = datetime.now()
 
     if unit_type == TimeUnit.MINUTES:
-            hours = unit_count // 60
             start = now
+            start_minute = (now.minute // unit_count) * unit_count
             if unit_count < 60:
-                minute = (now.minute // unit_count) * unit_count
-                if minute >= 60:
+                start_minute = (now.minute // unit_count) * unit_count
+                if start_minute >= 60:
                     start = now.replace(minute=0, second=0, microsecond=0)
                 else:
-                    start = now.replace(minute=minute, second=0, microsecond=0)
+                    start = now.replace(minute=start_minute, second=0, microsecond=0)
             else:
                 start = now.replace(minute=0, second=0, microsecond=0)
             stop_time = start + timedelta(minutes=unit_count)
@@ -68,11 +67,10 @@ def get_current_window(unit_count, unit_type, now=None):
             return (start, stop)
     
     if unit_type == TimeUnit.HOURS:
-        start = now.replace(hour=now.hour, minute=0, second=0, microsecond=0)
-
-        days = unit_count // 24
+        start_hour = ((now.hour) // unit_count) * unit_count
+        start = now.replace(hour=start_hour, minute=0, second=0, microsecond=0)
         
-        stop_time = now + timedelta(days = days, hours=unit_count)
+        stop_time = now + timedelta(hours=unit_count)
         stop = stop_time.replace(minute=0, second=0, microsecond=0)
         return (start, stop)
         
@@ -84,7 +82,6 @@ def get_current_window(unit_count, unit_type, now=None):
         return (start, stop)
     
     if unit_type == TimeUnit.MONTHS:
-        
         start_month = ((now.month - 1) // unit_count) * unit_count + 1
         start = now.replace(month=start_month, day=1, hour=0, minute=0, second=0,microsecond=0)
         stop = start  + relativedelta(months=unit_count)
